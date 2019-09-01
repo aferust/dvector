@@ -1,0 +1,25 @@
+{
+    "authors": [
+        "Ferhat Kurtulmuş"
+    ],
+    "copyright": "Copyright 2019, Ferhat Kurtulmuş",
+    "description": "Simple dynamic array implementation for D.",
+    "license": "Boost",
+    "name": "dvector",
+    "version": "0.0.1",
+    "importPaths": ["source"],
+    "sourcePaths": ["source"],
+    "configurations": [
+        {
+            "name": "library",
+            "targetType": "library",
+            "sourcePaths": ["source"]
+        },
+        {
+            "name": "import",
+            "targetType": "sourceLibrary",
+            "sourceFiles-posix": ["libdvector.a"],
+            "sourceFiles-windows": ["dvector.lib"]
+        }
+    ]
+}
