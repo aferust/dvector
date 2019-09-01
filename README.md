@@ -3,7 +3,7 @@ Simple dynamic array implementation for D that fits my needs.
  * compatible with betterC.
  * don't expect much, but it does the things :)
  * Tested in [ballgame](https://github.com/aferust/ballgame).
-##Example:
+## Example:
 ```
 import std.stdio;
 import core.stdc.stdlib;
