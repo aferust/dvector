@@ -116,6 +116,15 @@ struct Dvector(T) {
         }
         vector_set(&v, 0, c);
     }
+    
+    void insert(T c, int position){
+        
+        pBack(T.init);
+
+        for (uint k = cast(uint)(length-1); k > position; k--)
+            vector_set(&v, k, cast(T)vector_get(&v, k-1));
+        vector_set(&v, position, c);
+    }
 }
 
 unittest {
