@@ -5,8 +5,8 @@ Simple dynamic array implementation for D that fits my needs.
  * Tested in [ballgame](https://github.com/aferust/ballgame).
 ## Example:
 ```
-import std.stdio;
 import core.stdc.stdlib;
+import core.stdc.stdio;
 
 import dvector;
 
@@ -54,16 +54,21 @@ int main() nothrow @nogc
     
     comb.remove(2);
     
-    foreach(p; comb){
-        printf("%s \n", p.name.ptr);
-    }
-    
     assert(comb[2].name == "Ce");
     
     auto cn = mallocOne!Person("Chuck", 100);
     comb.pFront(cn);
     
     assert(comb[0].name == "Chuck");
+    
+    auto srv = mallocOne!Person("SRV", 100);
+    comb.insert(srv, 3);
+    
+    assert(comb[3].name == "SRV");
+    
+    foreach(i, p; comb){
+        printf("%d: %s \n", i, p.name.ptr);
+    }
     
     freeALL(comb);
     return 0;

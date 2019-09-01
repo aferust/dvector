@@ -117,7 +117,7 @@ struct Dvector(T) {
         vector_set(&v, 0, c);
     }
     
-    void insert(T c, int position){
+    void insert(T c, int position) @nogc nothrow{
         
         pBack(T.init);
 
@@ -128,6 +128,8 @@ struct Dvector(T) {
 }
 
 unittest {
+    import core.stdc.stdio;
+    
     T* mallocOne(T, Args...)(Args args){
         T* p = cast(T*)malloc(T.sizeof);
         *p = T(args);
@@ -167,16 +169,21 @@ unittest {
     
     comb.remove(2);
     
-    foreach(p; comb){
-        writeln(p.name);
-    }
-    
     assert(comb[2].name == "Ce");
     
     auto cn = mallocOne!Person("Chuck", 100);
     comb.pFront(cn);
     
     assert(comb[0].name == "Chuck");
+    
+    auto srv = mallocOne!Person("SRV", 100);
+    comb.insert(srv, 3);
+    
+    assert(comb[3].name == "SRV");
+    
+    foreach(i, p; comb){
+        printf("%d: %s \n", i, p.name.ptr);
+    }
     
     freeALL(comb);
     return 0;
