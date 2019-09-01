@@ -125,6 +125,10 @@ struct Dvector(T) {
             vector_set(&v, k, cast(T)vector_get(&v, k-1));
         vector_set(&v, position, c);
     }
+    
+    T[] array() @nogc nothrow{
+        return cast(T[])v.items[0..length];
+    }
 }
 
 unittest {
