@@ -30,8 +30,10 @@ struct Dvector(T) {
         vector_set(&v, i, elem);
     }
     
-    void remove(int i) @nogc nothrow{
+    T remove(int i) @nogc nothrow{
+        T rt = cast(T)vector_get(&v, i);
         vector_delete(&v, i);
+        return rt;
     }
     
     void free() @nogc nothrow{
@@ -65,7 +67,7 @@ struct Dvector(T) {
     }
     
     // overloads for gc usages:
-        int opApply(int delegate(T) dg){
+    int opApply(int delegate(T) dg){
         int result = 0;
 
         for (int k = 0; k < length; ++k) {
@@ -169,9 +171,8 @@ unittest {
     prs2 ~= s2;
     
     auto comb = prs1 ~ prs2;
-    freeALL(prs2);
     
-    comb.remove(2);
+    auto removed = comb.remove(2);
     
     assert(comb[2].name == "Ce");
     
