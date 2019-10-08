@@ -192,7 +192,7 @@ unittest {
     }
     
     freeALL(comb);
-    return 0;
+    
 }
 
 // based on https://eddmann.com/posts/implementing-a-dynamic-vector-array-in-c/
