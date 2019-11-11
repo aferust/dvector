@@ -6,7 +6,7 @@
     "description": "Simple dynamic array implementation for D (-betterC).",
     "license": "Boost",
     "name": "dvector",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "importPaths": ["source"],
     "sourcePaths": ["source"],
     "configurations": [
