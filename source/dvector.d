@@ -26,7 +26,7 @@ struct Dvector(T) {
         chunks[total++] = elem;
     }
     
-    T opIndex(size_t i) @nogc nothrow {
+    ref T opIndex(size_t i) @nogc nothrow {
         return chunks[i];
     }
     
