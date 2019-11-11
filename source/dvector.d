@@ -75,7 +75,7 @@ struct Dvector(T) {
         core.stdc.stdlib.free(chunks);
     }
     
-    int opApply(int delegate(T) @nogc nothrow dg) @nogc nothrow{
+    int opApply(int delegate(ref T) @nogc nothrow dg) @nogc nothrow{
         int result = 0;
 
         for (size_t k = 0; k < total; ++k) {
@@ -88,7 +88,7 @@ struct Dvector(T) {
         return result;
     }
     
-    int opApply(int delegate(size_t i, T) @nogc nothrow dg) @nogc nothrow{
+    int opApply(int delegate(size_t i, ref T) @nogc nothrow dg) @nogc nothrow{
         int result = 0;
 
         for (size_t k = 0; k < total; ++k) {
@@ -102,7 +102,7 @@ struct Dvector(T) {
     }
     
     // overloads for gc usages:
-    int opApply(int delegate(T) dg){
+    int opApply(int delegate(ref T) dg){
         int result = 0;
 
         for (size_t k = 0; k < total; ++k) {
@@ -115,7 +115,7 @@ struct Dvector(T) {
         return result;
     }
     
-    int opApply(int delegate(size_t i, T) dg){
+    int opApply(int delegate(size_t i, ref T) dg){
         int result = 0;
 
         for (size_t k = 0; k < total; ++k) {
