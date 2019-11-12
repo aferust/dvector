@@ -43,9 +43,7 @@ struct Dvector(T) {
 
         if (total > 0 && total == capacity / 4){
             resize(capacity / 2);
-        }else
-        if(total == 0)
-            this.free();
+        }
     }
     
     void allocIfneeded() @nogc nothrow {
