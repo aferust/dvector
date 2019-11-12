@@ -49,7 +49,7 @@ struct Dvector(T) {
     }
     
     void allocIfneeded() @nogc nothrow {
-        if(total == 0){
+        if(chunks == null){
             capacity = CAPACITY;
             T* _chunks = cast(T*)malloc(T.sizeof * CAPACITY);
             this.chunks = _chunks;
@@ -73,6 +73,7 @@ struct Dvector(T) {
         total = 0;
         capacity = CAPACITY;
         core.stdc.stdlib.free(chunks);
+        chunks = null;
     }
     
     int opApply(int delegate(ref T) @nogc nothrow dg) @nogc nothrow{
