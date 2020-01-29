@@ -2,6 +2,7 @@ module dvector;
 pragma(LDC_no_moduleinfo);
 
 import core.stdc.stdlib;
+import core.stdc.string;
 
 private enum CAPACITY = 4;
 
@@ -10,22 +11,50 @@ struct Dvector(T) {
     size_t total;
     size_t capacity;
 
+    @property T front() @nogc nothrow {
+        return chunks[0];
+    }
+
+    @property T back() @nogc nothrow {
+        return chunks[length-1];
+    }
+
     size_t length() @nogc nothrow {
         return total;
     }
     
+    @property bool empty() const @nogc nothrow {
+        return total == 0;
+    }
+
+    void popFront() @nogc nothrow {
+		remove(0);
+	}
+
+    void popBack() @nogc nothrow {
+		remove(length-1);
+	}
+
+    Dvector!T save() const @nogc nothrow {
+        T* cc_chunks = cast(T*)malloc(T.sizeof * this.capacity);
+        memcpy(cc_chunks, chunks, capacity * T.sizeof);
+        return Dvector!T(cc_chunks, this.total, this.total);
+    }
+
     this(T* chunks, size_t total, size_t capacity) @nogc nothrow {
         this.chunks = chunks;
         this.total = total;
         this.capacity = capacity;
     }
     
-    void pBack(T elem) @nogc nothrow {
+    void pushBack(T elem) @nogc nothrow {
         if (capacity == total)
             resize(capacity * 2);
         chunks[total++] = elem;
     }
     
+    alias pBack = pushBack;
+
     ref T opIndex(size_t i) @nogc nothrow {
         return chunks[i];
     }
@@ -131,7 +160,7 @@ struct Dvector(T) {
         static if (op == "~"){
             allocIfneeded();
             foreach(elem; rhs)
-                pBack(elem);
+                pushBack(elem);
             return this;
         } 
         else static assert(0, "Operator "~op~" not implemented");
@@ -140,7 +169,7 @@ struct Dvector(T) {
     Dvector!T opBinary(string op)(T rhs) @nogc nothrow {
         static if (op == "~"){
             allocIfneeded();
-            pBack(rhs);
+            pushBack(rhs);
             return this;
         } 
         else static assert(0, "Operator "~op~" not implemented");
@@ -149,19 +178,19 @@ struct Dvector(T) {
     @nogc nothrow Dvector!T opOpAssign(string op)(ref Dvector!T rhs) if (op == "~"){
         allocIfneeded();
         foreach(elem; rhs)
-            pBack(elem);
+            pushBack(elem);
         return this;
     }
 
     @nogc nothrow Dvector!T opOpAssign(string op)(ref T rhs) if (op == "~"){
         allocIfneeded();
-        pBack(rhs);
+        pushBack(rhs);
         return this;
     }
 
-    void pFront(T elem) @nogc nothrow{
+    void pushFront(T elem) @nogc nothrow{
         allocIfneeded();
-        pBack(T.init);
+        pushBack(T.init);
 
         for(size_t i = length-1; i > 0; i--){
             chunks[i] = chunks[i - 1];
@@ -171,7 +200,7 @@ struct Dvector(T) {
     
     void insert(T elem, size_t position) @nogc nothrow{
         allocIfneeded();
-        pBack(T.init);
+        pushBack(T.init);
 
         for (size_t k = length-1; k > position; k--)
             chunks[k] = chunks[k - 1];
@@ -213,7 +242,7 @@ unittest {
     assert(comb[2].name == "Ce");
     
     auto cn = Person("Chuck", 100);
-    comb.pFront(cn);
+    comb.pushFront(cn);
     
     assert(comb[0].name == "Chuck");
     
