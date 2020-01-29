@@ -18,7 +18,7 @@ struct Person {
 extern (C) int main() nothrow @nogc
 {
     
-    Dvector!Person prs1;
+    Dvector!(Person) prs1;
     
     auto p1 = Person("ferhat", 5);
     auto p2 = Person("Mike", 3);
@@ -30,7 +30,7 @@ extern (C) int main() nothrow @nogc
     prs1 ~= p3;
     prs1 ~= p4;
 
-    Dvector!Person prs2;
+    Dvector!(Person) prs2;
     auto s1 = Person("Ezgi", 15);
     auto s2 = Person("Emine", 36);
     
@@ -44,7 +44,7 @@ extern (C) int main() nothrow @nogc
     assert(comb[2].name == "Ce");
     
     auto cn = Person("Chuck", 100);
-    comb.pFront(cn);
+    comb.pushFront(cn);
     
     assert(comb[0].name == "Chuck");
     
