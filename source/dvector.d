@@ -37,8 +37,6 @@ struct Dvector(T) {
 
     /** !!! WARNING !!!
     Use it carefully with the standard library.
-    interface ForwardRange has no any deallocator member:
-    https://github.com/dlang/phobos/blob/master/std/range/interfaces.d L:151
     Be sure that the standard library functions don't implicitly copy it.
     But, it is Ok if the standard library functions return a handle of copied range
     so that you can free it manually. Otherwise, you leak memory.
