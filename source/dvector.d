@@ -28,17 +28,17 @@ struct Dvector(T) {
     }
 
     void popFront() @nogc nothrow {
-		remove(0);
-	}
+        remove(0);
+    }
 
     void popBack() @nogc nothrow {
-		remove(length-1);
-	}
+        remove(length-1);
+    }
 
     Dvector!T save() const @nogc nothrow {
         T* cc_chunks = cast(T*)malloc(T.sizeof * this.capacity);
         memcpy(cc_chunks, chunks, capacity * T.sizeof);
-        return Dvector!T(cc_chunks, this.total, this.total);
+        return Dvector!T(cc_chunks, this.total, this.capacity);
     }
 
     this(T* chunks, size_t total, size_t capacity) @nogc nothrow {
@@ -76,7 +76,7 @@ struct Dvector(T) {
     }
     
     void allocIfneeded() @nogc nothrow {
-        if(chunks == null){
+        if(chunks is null){
             capacity = CAPACITY;
             T* _chunks = cast(T*)malloc(T.sizeof * CAPACITY);
             this.chunks = _chunks;
