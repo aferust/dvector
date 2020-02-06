@@ -54,6 +54,7 @@ struct Dvector(T) {
     }
     
     void pushBack(T elem) @nogc nothrow {
+        allocIfneeded();
         if (capacity == total)
             resize(capacity * 2);
         chunks[total++] = elem;
