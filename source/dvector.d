@@ -1,5 +1,8 @@
 module dvector;
-pragma(LDC_no_moduleinfo);
+
+version(LDC){
+    pragma(LDC_no_moduleinfo);
+}
 
 import core.stdc.stdlib;
 import core.stdc.string;
