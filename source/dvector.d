@@ -85,6 +85,14 @@ struct Dvector(T) {
         }
     }
     
+    void remove(size_t index, size_t n) @nogc nothrow{
+        memmove(&chunks[index], &chunks[index+n], length-index-n);
+        total -= n;
+
+        if (total > 0 && total == capacity / 4)
+            resize(capacity / 2);
+    }
+
     void allocIfneeded() @nogc nothrow {
         if(chunks is null){
             capacity = CAPACITY;
@@ -215,6 +223,49 @@ struct Dvector(T) {
         for (size_t k = length-1; k > position; k--)
             chunks[k] = chunks[k - 1];
         chunks[position] = elem;
+    }
+
+    void insert(ref Dvector!T other, size_t position) @nogc nothrow{
+        allocIfneeded();
+        const oldlen = length;
+        foreach(i; 0..other.length)
+            pushBack(T.init);
+        memmove(&chunks[position+other.length], &chunks[position], (oldlen-position)*T.sizeof);
+        memcpy(&chunks[position], other.slice.ptr, other.length*T.sizeof);
+    }
+
+    void insert(T[] other, size_t position) @nogc nothrow{
+        allocIfneeded();
+        const oldlen = length;
+        foreach(i; 0..other.length)
+            pushBack(T.init);
+        memmove(&chunks[position+other.length], &chunks[position], (oldlen-position)*T.sizeof);
+        memcpy(&chunks[position], other.ptr, other.length*T.sizeof);
+    }
+
+    // allocates new sub vector removes elements from the original vector. Similar to javascript.
+    // instead of this it is better to use myvec.slice[start..end] without extra memory if possible.
+    Dvector!T splice(size_t index, size_t n) @nogc nothrow{
+        auto new_chunks = cast(T*)malloc(n*T.sizeof);
+        memcpy(new_chunks, &chunks[index], n*T.sizeof);
+        memmove(&chunks[index], &chunks[index+n], length-index-n);
+        total -= n;
+
+        if (total > 0 && total == capacity / 4)
+            resize(capacity / 2);
+
+        return Dvector!T(new_chunks, n, n);
+    }
+
+    // use std.range.retro if it is possible, otherwise use this and free returning vec manually 
+    Dvector!T reversed_copy() @nogc nothrow{
+        T* cc_chunks = cast(T*)malloc(T.sizeof * this.capacity);
+        auto ret = Dvector!T(cc_chunks, this.total, this.capacity);
+        size_t i;
+        foreach_reverse (ref e; this){
+            ret[i++]= e;
+        }
+        return ret;
     }
     
     T[] slice() @nogc nothrow{
