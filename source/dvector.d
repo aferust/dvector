@@ -261,10 +261,10 @@ struct Dvector(T) {
     Dvector!T reversed_copy() @nogc nothrow{
         T* cc_chunks = cast(T*)malloc(T.sizeof * this.capacity);
         auto ret = Dvector!T(cc_chunks, this.total, this.capacity);
-        size_t i;
-        foreach_reverse (ref e; this){
-            ret[i++]= e;
-        }
+        
+        size_t k;
+        for(size_t i = length; i-- > 0; )
+            ret[k++]= chunks[i];
         return ret;
     }
     
