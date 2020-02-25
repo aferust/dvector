@@ -56,12 +56,11 @@ struct Dvector(T) {
         this.capacity = capacity;
     }
     
+    // use it to avoid a lot of resizes. remember that reserve allocates.
     void reserve(size_t n) @nogc nothrow {
-        if(chunks is null){
-            chunks = cast(T*)malloc(T.sizeof * n);
-            total = n;
-        } else if(n > capacity){
-            resize(n);
+        allocIfneeded();
+        if(n > capacity){
+            resize(nextPowerOfTwo(n));
         }
     }
 
@@ -282,6 +281,16 @@ struct Dvector(T) {
     T[] slice() @nogc nothrow{
         return chunks[0..length];
     }
+}
+
+private size_t nextPowerOfTwo(size_t v) @nogc nothrow {
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    return ++v;
 }
 
 unittest {
