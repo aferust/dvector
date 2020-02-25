@@ -56,6 +56,15 @@ struct Dvector(T) {
         this.capacity = capacity;
     }
     
+    void reserve(size_t n) @nogc nothrow {
+        if(chunks is null){
+            chunks = cast(T*)malloc(T.sizeof * n);
+            total = n;
+        } else if(n > capacity){
+            resize(n);
+        }
+    }
+
     void pushBack(T elem) @nogc nothrow {
         allocIfneeded();
         if (capacity == total)
@@ -120,6 +129,8 @@ struct Dvector(T) {
         core.stdc.stdlib.free(chunks);
         chunks = null;
     }
+
+    alias freeVec = typeof(this).free;
     
     int opApply(int delegate(ref T) @nogc nothrow dg) @nogc nothrow{
         int result = 0;
@@ -248,7 +259,7 @@ struct Dvector(T) {
     Dvector!T splice(size_t index, size_t n) @nogc nothrow{
         auto new_chunks = cast(T*)malloc(n*T.sizeof);
         memcpy(new_chunks, &chunks[index], n*T.sizeof);
-        memmove(&chunks[index], &chunks[index+n], length-index-n);
+        memmove(&chunks[index], &chunks[index+n], T.sizeof*(length-index-n));
         total -= n;
 
         if (total > 0 && total == capacity / 4)
