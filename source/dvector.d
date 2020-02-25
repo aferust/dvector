@@ -94,7 +94,7 @@ struct Dvector(T) {
     }
     
     void remove(size_t index, size_t n) @nogc nothrow{
-        memmove(&chunks[index], &chunks[index+n], length-index-n);
+        memmove(&chunks[index], &chunks[index+n], T.sizeof*(length-index-n));
         total -= n;
 
         if (total > 0 && total == capacity / 4)
