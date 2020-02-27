@@ -129,7 +129,7 @@ struct Dvector(T) {
         chunks = null;
     }
 
-    alias freeVec = typeof(this).free;
+    alias clear = typeof(this).free;
     
     int opApply(int delegate(ref T) @nogc nothrow dg) @nogc nothrow{
         int result = 0;
