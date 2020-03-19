@@ -11,7 +11,7 @@ private enum CAPACITY = 4;
 
 struct Dvector(T) {
     private T* chunks;
-    size_t total;
+    private size_t total;
     size_t capacity;
 
     @property T front() @nogc nothrow {
@@ -22,9 +22,11 @@ struct Dvector(T) {
         return chunks[length-1];
     }
 
-    size_t length() @nogc nothrow {
+    size_t length() @nogc nothrow pure const {
         return total;
     }
+
+    alias opDollar = length;
     
     @property bool empty() const @nogc nothrow {
         return total == 0;
@@ -81,6 +83,13 @@ struct Dvector(T) {
         chunks[i] = elem;
     }
     
+    int indexOf(T elem) @nogc nothrow {
+        foreach(int i; 0..cast(int)length)
+            if (chunks[i] is elem)
+                return i;
+        return -1;
+    }
+
     void remove(size_t index) @nogc nothrow {
         for (size_t i = index; i < total - 1; i++) {
             chunks[i] = chunks[i + 1];
@@ -186,7 +195,6 @@ struct Dvector(T) {
     
     Dvector!T opBinary(string op)(ref Dvector!T rhs) @nogc nothrow{
         static if (op == "~"){
-            allocIfneeded();
             foreach(elem; rhs)
                 pushBack(elem);
             return this;
@@ -196,7 +204,6 @@ struct Dvector(T) {
     
     Dvector!T opBinary(string op)(T rhs) @nogc nothrow {
         static if (op == "~"){
-            allocIfneeded();
             pushBack(rhs);
             return this;
         } 
@@ -204,20 +211,17 @@ struct Dvector(T) {
     }
 
     @nogc nothrow Dvector!T opOpAssign(string op)(ref Dvector!T rhs) if (op == "~"){
-        allocIfneeded();
         foreach(elem; rhs)
             pushBack(elem);
         return this;
     }
 
-    @nogc nothrow Dvector!T opOpAssign(string op)(ref T rhs) if (op == "~"){
-        allocIfneeded();
+    @nogc nothrow Dvector!T opOpAssign(string op)(T rhs) if (op == "~"){
         pushBack(rhs);
         return this;
     }
 
-    void pushFront(T elem) @nogc nothrow{
-        allocIfneeded();
+    void pushFront(T elem) @nogc nothrow {
         pushBack(T.init);
 
         for(size_t i = length-1; i > 0; i--){
@@ -226,8 +230,7 @@ struct Dvector(T) {
         chunks[0] = elem;
     }
     
-    void insert(T elem, size_t position) @nogc nothrow{
-        allocIfneeded();
+    void insert(T elem, size_t position) @nogc nothrow {
         pushBack(T.init);
 
         for (size_t k = length-1; k > position; k--)
@@ -236,7 +239,6 @@ struct Dvector(T) {
     }
 
     void insert(ref Dvector!T other, size_t position) @nogc nothrow{
-        allocIfneeded();
         const oldlen = length;
         foreach(i; 0..other.length)
             pushBack(T.init);
@@ -245,7 +247,6 @@ struct Dvector(T) {
     }
 
     void insert(T[] other, size_t position) @nogc nothrow{
-        allocIfneeded();
         const oldlen = length;
         foreach(i; 0..other.length)
             pushBack(T.init);
@@ -253,9 +254,10 @@ struct Dvector(T) {
         memcpy(&chunks[position], other.ptr, other.length*T.sizeof);
     }
 
-    // allocates new sub vector removes elements from the original vector. Similar to javascript.
-    // instead of this it is better to use myvec.slice[start..end] without extra memory if possible.
-    Dvector!T splice(size_t index, size_t n) @nogc nothrow{
+    // allocates new sub vector removes elements from the original vector. partially similar to splice of javascript.
+    // instead of this it is better to use myvec[start..end] without extra memory if possible.
+    Dvector!T splice(size_t index, size_t n) @nogc nothrow {
+        /+
         auto new_chunks = cast(T*)malloc(n*T.sizeof);
         memcpy(new_chunks, &chunks[index], n*T.sizeof);
         memmove(&chunks[index], &chunks[index+n], T.sizeof*(length-index-n));
@@ -265,9 +267,20 @@ struct Dvector(T) {
             resize(capacity / 2);
 
         return Dvector!T(new_chunks, n, n);
+        +/
+
+        /// workaround 
+        Dvector!T narr;
+    
+        foreach(i; index..index+n)
+            narr.pushBack(chunks[i]);
+        foreach(i; 0..n){
+            remove(index);
+        }
+        return narr;
     }
 
-    // use std.range.retro if it is possible, otherwise use this and free returning vec manually 
+    // use std.range.retro if it is possible, otherwise use this and free returning vec with free 
     Dvector!T reversed_copy() @nogc nothrow{
         T* cc_chunks = cast(T*)malloc(T.sizeof * this.capacity);
         auto ret = Dvector!T(cc_chunks, this.total, this.capacity);
@@ -280,6 +293,26 @@ struct Dvector(T) {
     
     T[] slice() @nogc nothrow{
         return chunks[0..length];
+    }
+
+    inout(T)[] opSlice(size_t start, size_t end) inout @nogc nothrow {
+        return chunks[start..end];
+    }
+
+    inout(T)[] opSlice() inout @nogc nothrow {
+        return opSlice(0, length);
+    }
+
+    /// transfers ownership of the data to a slice.
+    // your free method for returning slice: core.stdc.stdlib.free(ret.ptr);
+    T[] release() @nogc nothrow {
+        T[] data = chunks[0..total];
+        
+        chunks = null;
+        total = 0;
+        capacity = 0;
+        
+        return data;
     }
 }
 

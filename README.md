@@ -1,5 +1,5 @@
 # dvector
-Simple dynamic array implementation for D that fits my needs.
+Dynamic array implementation for D that fits my needs.
  * compatible with betterC.
  * compatible with std.range (with empty, front, back, popFront, popBack, save)
 
@@ -59,6 +59,21 @@ extern (C) int main() nothrow @nogc
     
     comb.free;
     prs2.free;
+
+    Dvector!int iv;
+
+    iv ~= 2;
+    iv ~= 3;
+    iv ~= 24;
+    iv ~= 6;
+    iv ~= 8;
+
+    int[] view_iv = iv[2..$]; // [24, 6, 8]
+
+    int[] newOwner = iv.release();
+
+    core.stdc.stdlib.free(newOwner.ptr);
+
     return 0;
 }
 ```
