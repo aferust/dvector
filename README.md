@@ -6,7 +6,7 @@ Dynamic array implementation for D that fits my needs.
  * able to transfer ownership of its data to a slice.
 
 ## Example:
-```
+```d
 import core.stdc.stdlib;
 import core.stdc.stdio;
 
@@ -20,7 +20,7 @@ extern (C) int main() nothrow @nogc
 
     int[] newOwner = iv.release();
     printf("%d \n", newOwner.length);
-    
+
     free(newOwner.ptr);
 
     struct Person {string name; uint score;}
