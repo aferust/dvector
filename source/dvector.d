@@ -41,12 +41,13 @@ struct Dvector(T) {
     }
 
     /** !!! WARNING !!!
+    Allocates a new array.
     Use it carefully with the standard library.
     Be sure that the standard library functions don't implicitly copy it.
     But, it is Ok if the standard library functions return a handle of copied range
     so that you can free it manually. Otherwise, you leak memory.
     */
-    Dvector!T save() const @nogc nothrow {
+    Dvector!T save() @nogc nothrow {
         T* cc_chunks = cast(T*)malloc(T.sizeof * this.capacity);
         memcpy(cc_chunks, chunks, capacity * T.sizeof);
         return Dvector!T(cc_chunks, this.total, this.capacity);
@@ -132,10 +133,12 @@ struct Dvector(T) {
     }
 
     void free() @nogc nothrow {
-        total = 0;
-        capacity = CAPACITY;
-        core.stdc.stdlib.free(chunks);
-        chunks = null;
+        if(chunks !is null){
+            total = 0;
+            capacity = CAPACITY;
+            core.stdc.stdlib.free(chunks);
+            chunks = null;
+        }
     }
 
     alias clear = typeof(this).free;
@@ -272,7 +275,7 @@ struct Dvector(T) {
         /// workaround 
         Dvector!T narr;
     
-        foreach(i; index..index+n)
+        foreach(i; index..index + n)
             narr.pushBack(chunks[i]);
         foreach(i; 0..n){
             remove(index);
