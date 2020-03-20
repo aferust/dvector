@@ -1,7 +1,9 @@
 # dvector
 Dynamic array implementation for D that fits my needs.
  * compatible with betterC.
- * compatible with std.range (with empty, front, back, popFront, popBack, save)
+ * compatible with std.range (with empty, front, back, popFront, popBack, save).
+ * supports array literals for initialization.
+ * able to transfer ownership of its data to a slice.
 
 ## Example:
 ```
@@ -17,7 +19,8 @@ extern (C) int main() nothrow @nogc
     int[] view_iv = iv[2..$]; // [24, 6, 8]
 
     int[] newOwner = iv.release();
-
+    printf("%d \n", newOwner.length);
+    
     free(newOwner.ptr);
 
     struct Person {string name; uint score;}
