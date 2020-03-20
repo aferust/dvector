@@ -59,6 +59,13 @@ struct Dvector(T) {
         this.capacity = capacity;
     }
     
+    /// for array literals
+    this(T, size_t N)(const T[N] rhs) @nogc nothrow {
+        reserve(rhs.length);
+        foreach(ref elem; rhs)
+            pushBack(elem);
+    }
+
     // use it to avoid a lot of resizes. remember that reserve allocates.
     void reserve(size_t n) @nogc nothrow {
         allocIfneeded();
@@ -331,8 +338,17 @@ private size_t nextPowerOfTwo(size_t v) @nogc nothrow {
 
 unittest {
     import core.stdc.stdio;
-    struct Person { string name; uint score;}
-    
+
+    Dvector!int iv = [2, 3, 24, 6, 8]; // array literals with betterC
+
+    int[] view_iv = iv[2..$]; // [24, 6, 8]
+
+    int[] newOwner = iv.release();
+
+    free(newOwner.ptr);
+
+    struct Person {string name; uint score;}
+
     Dvector!(Person) prs1;
     
     auto p1 = Person("ferhat", 5);
@@ -374,4 +390,6 @@ unittest {
     
     comb.free;
     prs2.free;
+
+    return 0;
 }

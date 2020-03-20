@@ -10,14 +10,18 @@ import core.stdc.stdio;
 
 import dvector;
 
-struct Person {
-    string name;
-    uint score;
-}
-
 extern (C) int main() nothrow @nogc
 {
-    
+    Dvector!int iv = [2, 3, 24, 6, 8]; // array literals with betterC
+
+    int[] view_iv = iv[2..$]; // [24, 6, 8]
+
+    int[] newOwner = iv.release();
+
+    free(newOwner.ptr);
+
+    struct Person {string name; uint score;}
+
     Dvector!(Person) prs1;
     
     auto p1 = Person("ferhat", 5);
@@ -59,20 +63,6 @@ extern (C) int main() nothrow @nogc
     
     comb.free;
     prs2.free;
-
-    Dvector!int iv;
-
-    iv ~= 2;
-    iv ~= 3;
-    iv ~= 24;
-    iv ~= 6;
-    iv ~= 8;
-
-    int[] view_iv = iv[2..$]; // [24, 6, 8]
-
-    int[] newOwner = iv.release();
-
-    core.stdc.stdlib.free(newOwner.ptr);
 
     return 0;
 }

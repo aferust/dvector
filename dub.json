@@ -3,7 +3,7 @@
         "Ferhat Kurtulmuş"
     ],
     "copyright": "Copyright 2019, Ferhat Kurtulmuş",
-    "description": "Simple dynamic array implementation for D (-betterC).",
+    "description": "Dynamic array implementation for D (-betterC).",
     "license": "Boost",
     "name": "dvector",
     "version": "0.0.5",
