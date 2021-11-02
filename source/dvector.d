@@ -1,7 +1,9 @@
 module dvector;
 
 version(LDC){
-    pragma(LDC_no_moduleinfo);
+    version(D_BetterC){
+        pragma(LDC_no_moduleinfo);
+    }
 }
 
 import core.stdc.stdlib;
@@ -63,7 +65,7 @@ struct Dvector(T) {
     this(T, size_t N)(const T[N] rhs) @nogc nothrow {
         reserve(rhs.length);
         foreach(ref elem; rhs)
-            pushBack(elem);
+            insertBack(elem);
     }
 
     // use it to avoid a lot of resizes. remember that reserve allocates.
@@ -74,14 +76,14 @@ struct Dvector(T) {
         }
     }
 
-    void pushBack(T elem) @nogc nothrow {
+    void insertBack(T elem) @nogc nothrow {
         allocIfneeded();
         if (capacity == total)
             resize(capacity * 2);
         chunks[total++] = elem;
     }
     
-    alias pBack = pushBack;
+    alias pushBack = insertBack;
 
     ref T opIndex(size_t i) @nogc nothrow {
         return chunks[i];
@@ -118,7 +120,7 @@ struct Dvector(T) {
             resize(capacity / 2);
     }
 
-    void allocIfneeded() @nogc nothrow {
+    private void allocIfneeded() @nogc nothrow {
         if(chunks is null){
             capacity = CAPACITY;
             T* _chunks = cast(T*)malloc(T.sizeof * CAPACITY);
@@ -206,7 +208,7 @@ struct Dvector(T) {
     Dvector!T opBinary(string op)(ref Dvector!T rhs) @nogc nothrow{
         static if (op == "~"){
             foreach(elem; rhs)
-                pushBack(elem);
+                insertBack(elem);
             return this;
         } 
         else static assert(0, "Operator "~op~" not implemented");
@@ -214,7 +216,7 @@ struct Dvector(T) {
     
     Dvector!T opBinary(string op)(T rhs) @nogc nothrow {
         static if (op == "~"){
-            pushBack(rhs);
+            insertBack(rhs);
             return this;
         } 
         else static assert(0, "Operator "~op~" not implemented");
@@ -222,17 +224,17 @@ struct Dvector(T) {
 
     @nogc nothrow Dvector!T opOpAssign(string op)(ref Dvector!T rhs) if (op == "~"){
         foreach(elem; rhs)
-            pushBack(elem);
+            insertBack(elem);
         return this;
     }
 
     @nogc nothrow Dvector!T opOpAssign(string op)(T rhs) if (op == "~"){
-        pushBack(rhs);
+        insertBack(rhs);
         return this;
     }
 
     void pushFront(T elem) @nogc nothrow {
-        pushBack(T.init);
+        insertBack(T.init);
 
         for(size_t i = length-1; i > 0; i--){
             chunks[i] = chunks[i - 1];
@@ -241,7 +243,7 @@ struct Dvector(T) {
     }
     
     void insert(T elem, size_t position) @nogc nothrow {
-        pushBack(T.init);
+        insertBack(T.init);
 
         for (size_t k = length-1; k > position; k--)
             chunks[k] = chunks[k - 1];
@@ -251,7 +253,7 @@ struct Dvector(T) {
     void insert(ref Dvector!T other, size_t position) @nogc nothrow{
         const oldlen = length;
         foreach(i; 0..other.length)
-            pushBack(T.init);
+            insertBack(T.init);
         memmove(&chunks[position+other.length], &chunks[position], (oldlen-position)*T.sizeof);
         memcpy(&chunks[position], other.slice.ptr, other.length*T.sizeof);
     }
@@ -259,7 +261,7 @@ struct Dvector(T) {
     void insert(T[] other, size_t position) @nogc nothrow{
         const oldlen = length;
         foreach(i; 0..other.length)
-            pushBack(T.init);
+            insertBack(T.init);
         memmove(&chunks[position+other.length], &chunks[position], (oldlen-position)*T.sizeof);
         memcpy(&chunks[position], other.ptr, other.length*T.sizeof);
     }
@@ -267,23 +269,10 @@ struct Dvector(T) {
     // allocates new sub vector removes elements from the original vector. partially similar to splice of javascript.
     // instead of this it is better to use myvec[start..end] without extra memory if possible.
     Dvector!T splice(size_t index, size_t n) @nogc nothrow {
-        /+
-        auto new_chunks = cast(T*)malloc(n*T.sizeof);
-        memcpy(new_chunks, &chunks[index], n*T.sizeof);
-        memmove(&chunks[index], &chunks[index+n], T.sizeof*(length-index-n));
-        total -= n;
-
-        if (total > 0 && total == capacity / 4)
-            resize(capacity / 2);
-
-        return Dvector!T(new_chunks, n, n);
-        +/
-
-        /// workaround 
         Dvector!T narr;
     
         foreach(i; index..index + n)
-            narr.pushBack(chunks[i]);
+            narr.insertBack(chunks[i]);
         foreach(i; 0..n){
             remove(index);
         }
